@@ -19,6 +19,7 @@ class _DreamListState extends State<DreamList> {
   int totalItem = 0;
   int currentPage = 1;
   int rowsPerPage = 10;
+  String searchValue = "";
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -32,6 +33,7 @@ class _DreamListState extends State<DreamList> {
     String apiUrl = widget.apiUrl;
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
+      searchValue = searchQuery;
       apiUrl += '?search=$searchQuery';
     }
 
@@ -84,7 +86,7 @@ class _DreamListState extends State<DreamList> {
                   child: TextField(
                     controller: searchController,
                     decoration: const InputDecoration(
-                      labelText: 'Tìm kiếm',
+                      labelText: 'Nhập có dấu để có kết quả chính xác nhất',
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
@@ -95,6 +97,8 @@ class _DreamListState extends State<DreamList> {
                   onPressed: () async {
                     try {
                       // Gọi API với tham số tìm kiếm
+                      //set lại page = 1
+                      currentPage = 1;
                       await fetchAndDisplayData(searchQuery: searchController.text);
                     } catch (e) {
                       // Xử lý lỗi nếu cần thiết
@@ -141,10 +145,11 @@ class _DreamListState extends State<DreamList> {
                   onPressed: currentPage < (totalItem / rowsPerPage).ceil()
                       ? () async {
                           setState(() {
+                            
                             currentPage = (currentPage + 1).clamp(1, (totalItem / rowsPerPage).ceil());
                             print('Next Button Pressed. Current Page: $currentPage');
                           });
-                          await fetchAndDisplayData();
+                          await fetchAndDisplayData(searchQuery: searchValue);
                         }
                       : null,
                 ),
@@ -157,7 +162,7 @@ class _DreamListState extends State<DreamList> {
                             currentPage = (currentPage - 1).clamp(1, (totalItem / rowsPerPage).ceil());
                             print('Next Button Pressed. Current Page: $currentPage');
                           });
-                          await fetchAndDisplayData();
+                          await fetchAndDisplayData(searchQuery: searchValue);
                         }
                       : null,
                 ),
