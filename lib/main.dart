@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dream_list.dart';
-import 'soxo_list.dart';
+import 'soxo_list_2.dart';
 
 void main() {
   runApp(MyApp());
@@ -54,14 +54,18 @@ class MyHomePage extends StatelessWidget {
                 String image = "";
                 String title = "";
                 String text = "";
-                late Widget destinationScreen; // Use 'late' to indicate that the variable will be assigned before use
+                late Widget
+                    destinationScreen; // Use 'late' to indicate that the variable will be assigned before use
 
                 // Thiết lập title và text tương ứng với mỗi index
                 if (index == 0) {
                   image = 'images/assets/dream.png';
                   title = 'Giải mã giấc mơ';
-                  text = 'Giải mã tất cả các giấc mơ của bạn để đưa bạn chạm tới ước mơ của chính bản thân mình';
-                  destinationScreen = DreamList(apiUrl: 'https://dream-abb4snyjiq-df.a.run.app/v1/get-dream');
+                  text =
+                      'Giải mã tất cả các giấc mơ của bạn để đưa bạn chạm tới ước mơ của chính bản thân mình';
+                  destinationScreen = DreamList(
+                      apiUrl:
+                          'https://dream-abb4snyjiq-df.a.run.app/v1/get-dream');
                 } else if (index == 1) {
                   image = 'images/assets/thansohoc.png';
                   title = 'Giải mã thần số học';
@@ -71,7 +75,7 @@ class MyHomePage extends StatelessWidget {
                   image = 'images/assets/soxo.png';
                   title = 'Kết quả sổ số';
                   text = 'Để biết giấc mơ của bạn đang nằm ở đâu...';
-                  destinationScreen = SoXoList();
+                  destinationScreen = SoXoListScreen();
                 }
 
                 return ListTile(
@@ -79,15 +83,14 @@ class MyHomePage extends StatelessWidget {
                   title: Text(title),
                   subtitle: Text(text),
                   onTap: () {
-  // Chuyển đến màn hình tương ứng khi được nhấn
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => destinationScreen,
-    ),
-  );
-},
-
+                    // Chuyển đến màn hình tương ứng khi được nhấn
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => destinationScreen,
+                      ),
+                    );
+                  },
                 );
               },
             ),

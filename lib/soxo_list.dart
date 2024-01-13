@@ -291,22 +291,77 @@ class _SoXoListState extends State<SoXoList> {
     );
   }
 
-Widget _buildPrizeTile(String title, String value) {
-  List<String> prizeValues = value.split(' ');
+// Thay đổi hàm _buildPrizeTile như sau:
 
-  if ((title == 'Giải ba' || title == 'Giải năm') && prizeValues.length > 3) {
-    List<Widget> rows = [];
-    for (int i = 0; i < prizeValues.length; i += 3) {
-      List<String> rowValues = prizeValues.sublist(
-        i,
-        i + 3 > prizeValues.length ? prizeValues.length : i + 3,
+  Widget _buildPrizeTile(String title, String value) {
+    List<String> prizeValues = value.split(' ');
+
+    if ((title == 'Giải ba' || title == 'Giải năm') && prizeValues.length > 3) {
+      List<Widget> rows = [];
+      for (int i = 0; i < prizeValues.length; i += 3) {
+        List<String> rowValues = prizeValues.sublist(
+          i,
+          i + 3 > prizeValues.length ? prizeValues.length : i + 3,
+        );
+        rows.add(Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: rowValues.map((String val) {
+            return Text(
+              val,
+              style: _getPrizeTextStyle(title),
+            );
+          }).toList(),
+        ));
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != 'Giải đặc biệt') const Divider(),
+          ListTile(
+            title: Text(
+              title,
+              style: _getTitleTextStyle(title),
+            ),
+            trailing: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rows,
+            ),
+          ),
+        ],
       );
-      rows.add(Text(
-        rowValues.join(' '),
-        style: _getPrizeTextStyle(title),
-        textAlign: TextAlign.center,
-      ));
     }
+
+    if (title == 'Giải tư' && prizeValues.length > 3) {
+      List<Widget> rows = [];
+      for (int i = 0; i < prizeValues.length; i += 3) {
+        List<String> rowValues = prizeValues.sublist(
+          i,
+          i + 3 > prizeValues.length ? prizeValues.length : i + 3,
+        );
+
+        rows.add(Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: rowValues.map((String val) {
+            return Text(
+              val,
+              style: _getPrizeTextStyle(title),
+            );
+          }).toList(),
+        ));
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != 'Giải đặc biệt') const Divider(),
+          Text(
+            title,
+            style: _getTitleTextStyle(title),
+          ),
+          ...rows, // Sử dụng spread operator để thêm tất cả các dòng vào Column
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -316,68 +371,20 @@ Widget _buildPrizeTile(String title, String value) {
             title,
             style: _getTitleTextStyle(title),
           ),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: rows,
+          trailing: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: prizeValues.map((String val) {
+              return Text(
+                val,
+                style: _getPrizeTextStyle(title),
+              );
+            }).toList(),
           ),
         ),
       ],
     );
   }
 
-  if (title == 'Giải tư' && prizeValues.length > 3) {
-    List<Widget> rows = [];
-    for (int i = 0; i < prizeValues.length; i += 3) {
-      List<String> rowValues = prizeValues.sublist(
-        i,
-        i + 3 > prizeValues.length ? prizeValues.length : i + 3,
-      );
-
-      rows.add(Text(
-        rowValues.join(' '),
-        style: _getPrizeTextStyle(title),
-        textAlign: TextAlign.center,
-      ));
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != 'Giải đặc biệt') const Divider(),
-        ListTile(
-          title: Text(
-            title,
-            style: _getTitleTextStyle(title),
-          ),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: rows,
-          ),
-        ),
-      ],
-    );
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (title != 'Giải đặc biệt') const Divider(),
-      ListTile(
-        title: Text(
-          title,
-          style: _getTitleTextStyle(title),
-        ),
-        trailing: SizedBox(
-          height: 100, // Adjust the height as per your requirement
-          child: Text(
-            value,
-            style: _getPrizeTextStyle(title),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    ],
-  );
-}
 
 TextStyle _getTitleTextStyle(String title) {
   // Define your title text styles here based on the title

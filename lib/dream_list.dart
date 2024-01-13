@@ -23,38 +23,56 @@ class _DreamListState extends State<DreamList> {
   @override
   void initState() {
     super.initState();
-    // Gọi API và hiển thị dữ liệu khi màn hình được khởi tạo
     fetchAndDisplayData();
   }
 
+  DecorationImage backgroundImage = const DecorationImage(
+    image: AssetImage("images/assets/backgoundpupur.jpg"),  // Change the image path
+    fit: BoxFit.cover,
+  );
+
+
   Future<void> fetchAndDisplayData({String? searchQuery}) async {
-    String apiUrl = widget.apiUrl;
+    try {
+      String apiUrl = widget.apiUrl;
 
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      searchValue = searchQuery;
-      apiUrl += '?search=$searchQuery';
-    }
-
-    apiUrl += apiUrl.contains('?') ? '&page=$currentPage' : '?page=$currentPage';
-    print(apiUrl);
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      dynamic responseData = json.decode(response.body);
-      print(responseData);
-      if (responseData is Map<String, dynamic> &&
-          responseData.containsKey('data') &&
-          responseData['data']['Data'] is List) {
-        setState(() {
-          dreams = List<Map<String, dynamic>>.from(responseData['data']['Data']);
-          totalItem = responseData['data']['Total'] ?? 0; // Lấy giá trị từ 'Total'
-        });
-      } else {
-        throw Exception('Invalid response format');
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        searchValue = searchQuery;
+        apiUrl += '?search=$searchQuery';
       }
-    } else {
-      throw Exception('Failed to load data');
+
+      apiUrl += apiUrl.contains('?') ? '&page=$currentPage' : '?page=$currentPage';
+
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        dynamic responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData.containsKey('data') &&
+            responseData['data']['Data'] is List) {
+          setState(() {
+            dreams = List<Map<String, dynamic>>.from(responseData['data']['Data']);
+            totalItem = responseData['data']['Total'] ?? 0;
+          });
+        } else {
+          showErrorSnackBar("Invalid response format");
+        }
+      } else {
+        showErrorSnackBar("Failed to load data");
+      }
+    } catch (e) {
+      showErrorSnackBar("Error: $e");
     }
+  }
+
+  void showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   List<Map<String, dynamic>> getCurrentPageData() {
@@ -67,107 +85,121 @@ class _DreamListState extends State<DreamList> {
 
   @override
   Widget build(BuildContext context) {
-    print('dreams: $dreams');
-    print('Current Page Data Length: ${getCurrentPageData().length}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tìm kiếm giấc mơ cho bạn'),
         leading: const BackButton(),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nhập có dấu để có kết quả chính xác nhất',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+      body: Container(
+        decoration: BoxDecoration(
+        image: backgroundImage,
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nhập từ khóa ví dụ: "Tiền"',
+                        labelStyle: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16.0, // Kích thước chữ
+                        fontWeight: FontWeight.bold, // Trọng lượng chữ
+                        color: Colors.orange, // Màu chữ
+                        //Thêm các thuộc tính khác của TextStyle nếu bạn muốn tùy chỉnh thêm
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () async {
-                    try {
-                      // Gọi API với tham số tìm kiếm
-                      //set lại page = 1
-                      currentPage = 1;
-                      await fetchAndDisplayData(searchQuery: searchController.text);
-                    } catch (e) {
-                      // Xử lý lỗi nếu cần thiết
-                      print('Error fetching and displaying data: $e');
-                    }
-                  },
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () async {
+                      try {
+                        // Gọi API với tham số tìm kiếm
+                        //set lại page = 1
+                        currentPage = 1;
+                        await fetchAndDisplayData(searchQuery: searchController.text);
+                      } catch (e) {
+                        // Xử lý lỗi nếu cần thiết
+                        print('Error fetching and displaying data: $e');
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(10.0,0,10.0,20.0),
-            child: Row(
-              children: [
-                Text("Các con số cho giấc mơ của bạn")
-              ],
+            const Padding(
+              padding: EdgeInsets.fromLTRB(10.0,0,10.0,20.0),
+              child: Row(
+                children: [
+                  Text("Các con số cho giấc mơ của bạn", style: TextStyle(color: Colors.pink, fontSize: 16, fontWeight: FontWeight.bold),)
+                ],
+              ),
             ),
-          ),
-          const Divider(), // Gạch chân ngăn cách dưới mỗi item
-          Expanded(
-            child: ListView.builder(
-              itemCount: dreams.length,
-              itemBuilder: (context, index) {
-                final dream = dreams[index];
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(dream['name'], style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 16)),
-                      subtitle: Text(dream['number'], style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14, color: Colors.blue)),
-                    ),
-                    const Divider(),
-                  ],
-                );
-              },
+            const Divider(), // Gạch chân ngăn cách dưới mỗi item
+            Expanded(
+              child: ListView.builder(
+                itemCount: dreams.length,
+                itemBuilder: (context, index) {
+                  final dream = dreams[index];
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(dream['name'], style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16)),
+                        subtitle: Text(dream['number'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.green)),
+                      ),
+                      const Divider(),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios),
-                  onPressed: currentPage < (totalItem / rowsPerPage).ceil()
-                      ? () async {
-                          setState(() {
-                            
-                            currentPage = (currentPage + 1).clamp(1, (totalItem / rowsPerPage).ceil());
-                            print('Next Button Pressed. Current Page: $currentPage');
-                          });
-                          await fetchAndDisplayData(searchQuery: searchValue);
-                        }
-                      : null,
-                ),
-                Text('Page $currentPage'),
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: currentPage > 1
-                      ? () async {
-                          setState(() {
-                            currentPage = (currentPage - 1).clamp(1, (totalItem / rowsPerPage).ceil());
-                            print('Next Button Pressed. Current Page: $currentPage');
-                          });
-                          await fetchAndDisplayData(searchQuery: searchValue);
-                        }
-                      : null,
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios),
+                    onPressed: currentPage < (totalItem / rowsPerPage).ceil()
+                        ? () async {
+                            setState(() {
+
+                              currentPage = (currentPage + 1).clamp(1, (totalItem / rowsPerPage).ceil());
+                              print('Next Button Pressed. Current Page: $currentPage');
+                            });
+                            await fetchAndDisplayData(searchQuery: searchValue);
+                          }
+                        : null,
+                  ),
+                  Text('Page $currentPage',style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.orange),),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: currentPage > 1
+                        ? () async {
+                            setState(() {
+                              currentPage = (currentPage - 1).clamp(1, (totalItem / rowsPerPage).ceil());
+                              print('Next Button Pressed. Current Page: $currentPage');
+                            });
+                            await fetchAndDisplayData(searchQuery: searchValue);
+                          }
+                        : null,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
