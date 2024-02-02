@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dream_list.dart';
 import 'soxo_list_2.dart';
+import 'thansohoc.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Giải mã giấc mơ',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -63,14 +64,14 @@ class MyHomePage extends StatelessWidget {
                   title = 'Giải mã giấc mơ';
                   text =
                       'Giải mã tất cả các giấc mơ của bạn để đưa bạn chạm tới ước mơ của chính bản thân mình';
-                  destinationScreen = DreamList(
+                  destinationScreen = const DreamList(
                       apiUrl:
                           'https://dream-abb4snyjiq-df.a.run.app/v1/get-dream');
                 } else if (index == 1) {
                   image = 'images/assets/thansohoc.png';
                   title = 'Giải mã thần số học';
                   text = 'Giải mã tất cả các vấn đề liên quan đến bản thân bạn';
-                  // destinationScreen = ... (nếu có màn hình tương ứng)
+                  destinationScreen = const Numerology();
                 } else if (index == 2) {
                   image = 'images/assets/soxo.png';
                   title = 'Kết quả sổ số';
